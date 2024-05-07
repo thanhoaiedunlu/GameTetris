@@ -8,13 +8,9 @@ public abstract class AShape {
     protected int x; // vị trí của khối trên trục x và y
     protected int y;
     protected int size; // kích thước của khối
-
     public AShape() {
-
-    }
-    public AShape(int x, int y, int size) {
         this.x = 4;
-        this.y = y;
+        this.y = 0;
         this.size = 30;
     }
     //kiểm tra bước tiếp theo khối có di chuyển ra ngoài biên dưới của bảng không không
