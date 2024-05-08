@@ -101,13 +101,6 @@ public class Board {
         this.currentShape = this.getNewShape();
     }
 
-
-
-
-
-
-
-
     public int getWidth() {
         return width;
     }
