@@ -1,64 +1,38 @@
 package model;
 
 import model.factory.ShapeFactoryProducer;
+import model.observer.Observer;
+import model.observer.Subject;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class Board {
-    private int width;
-    private int height;
-    private ShapeFactoryProducer shapeFactoryProducer;
-    private Color[][] shapesFreeze;
+public class Board implements Subject {
+    private final int width, height;
+    private final ShapeFactoryProducer shapeFactory;
+    private final Color[][] shapesFreeze;
     private long beginTime;
     private StateGame stateGame;
-    private int delayTime;
-    private Player player;
+    private int delayTime, score;
     private boolean collision = false;
     private AShape currentShape;
+    private final List<Observer> observers;
+
     public Board(int width, int height, int delayTime) {
         super();
         this.width = width;
         this.height = height;
         this.delayTime = delayTime;
-        this.shapeFactoryProducer = shapeFactoryProducer.getInstance();
+        this.shapeFactory = ShapeFactoryProducer.getInstance();
         this.stateGame = StateGame.PLAY;
         this.shapesFreeze = new Color[this.height][this.width];
         this.currentShape = this.getNewShape();
-        this.player = this.getPlayer();
+        this.observers = new ArrayList<>();
     }
 
-    private AShape getNewShape() {
-        return this.shapeFactoryProducer.createShape();
-    }
-    private void checkOverGame() {
-        int[][] shape = this.currentShape.getElement();
-        for (int raw = 0; raw < shape.length; raw++) {
-            for (int col = 0; col < shape[0].length; col++) {
-                if (shape[raw][col] != 0) {
-                    if (this.shapesFreeze[raw + this.currentShape.getY()][col + this.currentShape.getX()] != null) {
-                        this.stateGame = StateGame.OVER;
-                    }
-                }
-            }
-        }
-    }
-    private void checkLine() {
-        int bottomLine = this.shapesFreeze.length - 1;
-        for (int topLine = bottomLine; topLine > 0; topLine--) {
-            int count = 0;
-            for (int col = 0; col < this.shapesFreeze[0].length; col++) {
-                if (this.shapesFreeze[topLine][col] != null) count++;
-                this.shapesFreeze[bottomLine][col] = this.shapesFreeze[topLine][col];
-            }
-            if (count < this.shapesFreeze[0].length) {
-                bottomLine--;
-            } else {
-                this.player.setScore(this.player.getScore() + 10);
-//                this.notifyObservers();
-            }
-        }
-    }
+
     private void createNewShape() {
         if (this.collision) {
             int[][] element = this.currentShape.getElement();
@@ -75,6 +49,11 @@ public class Board {
             this.collision = !this.collision;
         }
     }
+
+    private AShape getNewShape() {
+        return this.shapeFactory.createShape();
+    }
+
     public void state() {
         if (this.stateGame == StateGame.PLAY) {
             this.createNewShape();
@@ -88,10 +67,41 @@ public class Board {
                 this.beginTime = System.currentTimeMillis();
             }
         }
-//        this.notifyObservers();
+        this.notifyObservers();
     }
+
+    private void checkLine() {
+        int bottomLine = this.shapesFreeze.length - 1;
+        for (int topLine = bottomLine; topLine > 0; topLine--) {
+            int count = 0;
+            for (int col = 0; col < this.shapesFreeze[0].length; col++) {
+                if (this.shapesFreeze[topLine][col] != null) count++;
+                this.shapesFreeze[bottomLine][col] = this.shapesFreeze[topLine][col];
+            }
+            if (count < this.shapesFreeze[0].length) {
+                bottomLine--;
+            } else {
+                this.score += 10;
+                this.notifyObservers();
+            }
+        }
+    }
+
+    private void checkOverGame() {
+        int[][] shape = this.currentShape.getElement();
+        for (int raw = 0; raw < shape.length; raw++) {
+            for (int col = 0; col < shape[0].length; col++) {
+                if (shape[raw][col] != 0) {
+                    if (this.shapesFreeze[raw + this.currentShape.getY()][col + this.currentShape.getX()] != null) {
+                        this.stateGame = StateGame.OVER;
+                    }
+                }
+            }
+        }
+    }
+
     public void refresh() {
-        this.player.setScore(0);
+        this.score = 0;
         for (int raw = 0; raw < this.shapesFreeze.length; raw++) {
             for (int col = 0; col < this.shapesFreeze[raw].length; col++) {
                 this.shapesFreeze[raw][col] = null;
@@ -101,44 +111,24 @@ public class Board {
         this.currentShape = this.getNewShape();
     }
 
+    public Color[][] getShapesFreeze() {
+        return this.shapesFreeze;
+    }
+
+    public AShape getCurrentShape() {
+        return currentShape;
+    }
+
+    public void setDelayTime(int delayTime) {
+        this.delayTime = delayTime;
+    }
+
     public int getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
     public int getHeight() {
         return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public ShapeFactoryProducer getShapeFactoryProducer() {
-        return shapeFactoryProducer;
-    }
-
-    public void setShapeFactoryProducer(ShapeFactoryProducer shapeFactoryProducer) {
-        this.shapeFactoryProducer = shapeFactoryProducer;
-    }
-
-    public Color[][] getShapesFreeze() {
-        return shapesFreeze;
-    }
-
-    public void setShapesFreeze(Color[][] shapesFreeze) {
-        this.shapesFreeze = shapesFreeze;
-    }
-
-    public long getBeginTime() {
-        return beginTime;
-    }
-
-    public void setBeginTime(long beginTime) {
-        this.beginTime = beginTime;
     }
 
     public StateGame getStateGame() {
@@ -149,51 +139,21 @@ public class Board {
         this.stateGame = stateGame;
     }
 
-    public int getDelayTime() {
-        return delayTime;
-    }
-
-    public void setDelayTime(int delayTime) {
-        this.delayTime = delayTime;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public boolean isCollision() {
-        return collision;
-    }
-
-    public void setCollision(boolean collision) {
-        this.collision = collision;
-    }
-
-    public AShape getCurrentShape() {
-        return currentShape;
-    }
-
-    public void setCurrentShape(AShape currentShape) {
-        this.currentShape = currentShape;
+    public int getScore() {
+        return score;
     }
 
     @Override
-    public String toString() {
-        return "Board{" +
-                "width=" + width +
-                ", height=" + height +
-                ", shapeFactoryProducer=" + shapeFactoryProducer +
-                ", shapesFreeze=" + Arrays.toString(shapesFreeze) +
-                ", beginTime=" + beginTime +
-                ", stateGame=" + stateGame +
-                ", delayTime=" + delayTime +
-                ", player=" + player +
-                ", collision=" + collision +
-                ", currentShape=" + currentShape +
-                '}';
+    public void addObserver(Observer... observer) {
+        this.observers.addAll(Arrays.asList(observer));
+    }
+
+    @Override
+    public void removeObserver(Observer... observer) {
+        this.observers.removeAll(Arrays.asList(observer));
+    }
+    @Override
+    public void notifyObservers() {
+        this.observers.forEach(observer -> observer.update(this));
     }
 }
