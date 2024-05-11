@@ -1,12 +1,15 @@
 package model.builder.board;
 
 import model.Board;
+import model.strategy.EasyLevel;
+import model.strategy.HardLevel;
+import model.strategy.ILevelStategy;
 
 public class BoardBuilder implements IBoardBuilder {
     private int width;
     private int height;
     private int delayTime;
-
+    private ILevelStategy iLevelStategy = new HardLevel();
     @Override
     public BoardBuilder width(int width) {
         this.width = width;
@@ -28,5 +31,8 @@ public class BoardBuilder implements IBoardBuilder {
     @Override
     public Board build() {
         return new Board(this.width, this.height, this.delayTime);
+    }
+    public Board build2() {
+        return new Board(this.iLevelStategy.setBoardWidth(), this.iLevelStategy.setBoardHeight(), this.iLevelStategy.setDelayTime());
     }
 }

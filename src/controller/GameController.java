@@ -57,7 +57,6 @@ public class GameController implements IController {
             public void keyTyped(KeyEvent e) {
 
             }
-
             @Override
             public void keyReleased(KeyEvent e) {
                 int positionX = 0;
@@ -67,8 +66,10 @@ public class GameController implements IController {
                     case KeyEvent.VK_RIGHT -> positionX = 1;
                     case KeyEvent.VK_LEFT -> positionX = -1;
                     case KeyEvent.VK_SPACE -> {
-                        if (model.getStateGame() == StateGame.PLAY) stateGame = StateGame.PAUSE;
-                        if (model.getStateGame() == StateGame.PAUSE) stateGame = StateGame.PLAY;
+                        if (model.getStateGame() == StateGame.PLAY)
+                            stateGame = StateGame.PAUSE;
+                        if (model.getStateGame() == StateGame.PAUSE)
+                            stateGame = StateGame.PLAY;
                     }
                 }
                 model.setStateGame(stateGame);
@@ -77,7 +78,8 @@ public class GameController implements IController {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DOWN) model.setDelayTime(50);
+                if (e.getKeyCode() == KeyEvent.VK_DOWN)
+                    model.setDelayTime(50);
             }
         });
     }
@@ -95,7 +97,8 @@ public class GameController implements IController {
                         model.setStateGame(StateGame.PLAY);
                     }
                 }
-                if (component.getRefreshBounds().contains(e.getX(), e.getY())) refresh();
+                if (component.getRefreshBounds().contains(e.getX(), e.getY()))
+                    refresh();
             }
         });
     }

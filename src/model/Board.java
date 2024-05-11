@@ -99,7 +99,6 @@ public class Board implements Subject {
             }
         }
     }
-
     public void refresh() {
         this.score = 0;
         for (int raw = 0; raw < this.shapesFreeze.length; raw++) {
@@ -110,7 +109,6 @@ public class Board implements Subject {
         this.stateGame = StateGame.PLAY;
         this.currentShape = this.getNewShape();
     }
-
     public Color[][] getShapesFreeze() {
         return this.shapesFreeze;
     }
